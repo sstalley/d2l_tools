@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import sys
 import os
+import subprocess
 
 
 script_name = sys.argv[0]
@@ -28,12 +29,10 @@ if (len(sys.argv) != 5):
 	# example command for running this script:
 	# python3 d2l_builder.py HW2 .c "cc -lpd -fdafd " "-o"
 
-
 root_dir = sys.argv[1]
 ftype = sys.argv[2]
 ccstring = sys.argv[3]
 outstring = sys.argv[4]
-
 
 submissions = os.listdir(root_dir)
 
@@ -64,12 +63,12 @@ for sfolder_name in submissions:
 		cmd_str = ccstring + " \"" + sfile + "\" " + outstring + " \"" + fname + "\""
 
 		print("Running \"", cmd_str, "\"...")
-		stream = os.popen(cmd_str)
-		cc_output = stream.read()
-		
+		stream = subprocess.Popen(cmd_str, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+		cc_output = stream.communicate()
+
 		logpath = fname + ".clog"
-		cc_log = open(logpath, "w")
-		cc_log.write(cc_output)
+		cc_log = open(logpath, "wb")
+		cc_log.write(cc_output[0])
 		cc_log.close()
 
 print("compiled", cc_count, ftype, "files for", students, "students")

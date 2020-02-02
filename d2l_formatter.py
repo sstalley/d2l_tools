@@ -80,7 +80,7 @@ for sfile in submissions:
 	oldpath = os.path.join(destination, sfile)
 	newpath = os.path.join(spath, newfile)
 
-	print("Moving", oldpath, "to", newpath)
+	# print("Moving", oldpath, "to", newpath)
 	os.rename(oldpath, newpath)
 	
 	# Unzip if it's a zip file
