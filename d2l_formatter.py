@@ -50,13 +50,13 @@ with zipfile.ZipFile(zfile, 'r') as zip_ref:
 
 submissions = os.listdir(destination)
 
+students = 0
 # Make a folder for every student
 for sfile in submissions:
 
 	# every submitted file is in the format "<some ID number> <student name> <filename>.<extention>"
 	# we create a folder for each student in the format "<some ID number> <student name>" and put all their files into it
-	smatch =  re.match("^(.+?)\s+(?=\S+$)", sfile)
-	print("smatch:", smatch)
+	smatch =  re.match("^(\d+\-\d+)(.+?)(?=\s\S+$)", sfile)
 	if (smatch is None):
 		continue
 	else:
@@ -64,15 +64,22 @@ for sfile in submissions:
 
 	spath = os.path.join(destination, sname)
 
-
 	if not (os.path.exists(spath)):
-		print("creating ", spath, "...")
+		students = students + 1
+		print("creating ", spath, "directory")
 		try:
 			os.mkdir(spath)
 		except OSError:
 			print("Error: Cannot create ", spath)
 			sys.exit()
+
+	# move file into folder
+	oldpath = os.path.join(destination, sfile)
+	newpath = os.path.join(spath, sfile)
+	os.rename(oldpath, newpath)
 	
+print("created folders for ", students, "students")
+
 # For every submission:
 	# Create a folder
 
