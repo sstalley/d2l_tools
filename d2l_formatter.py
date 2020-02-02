@@ -1,5 +1,5 @@
 """
-!!! TODO SOS: Add name and description of this file
+d2l_formatter.py - creates a directory for every student and unzips their source code (if applicable)
 Copyright (C) 2020 Sean O. Stalley
 
 This program is free software: you can redistribute it and/or modify
@@ -73,17 +73,29 @@ for sfile in submissions:
 			print("Error: Cannot create", spath)
 			sys.exit()
 
-	# move file into folder
-	newfile = str.lstrip(str.replace(sfile, sname, ""))
+	# move files into student folders
+	newfile = str.lstrip(str.replace(sfile, sname, "")) # New File Name = Old File Name - Directory Name
+
 	oldpath = os.path.join(destination, sfile)
 	newpath = os.path.join(spath, newfile)
+
 	print("Moving", oldpath, "to", newpath)
 	os.rename(oldpath, newpath)
 	
+	# Unzip if it's a zip file
+	if zipfile.is_zipfile(newpath):
+		with zipfile.ZipFile(newpath) as zip:
+			for zip_info in zip.infolist():
+				if zip_info.filename[-1] == '/':
+					continue
+				zip_info.filename = os.path.basename(zip_info.filename)
+				zip.extract(zip_info, spath)
+		#and remove the zip file
+		os.remove(newpath)
+
 print("created folders for", students, "students")
 
-# For every submission:
-	# Create a folder
+
 
 # For every zip file:
 	#Unzip it
