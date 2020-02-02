@@ -24,40 +24,68 @@ import time
 script_name = sys.argv[0]
 
 if (len(sys.argv) != 4):
-	print("usage: ", script_name, "<executable> <file containing arguments> <runs per argument>")
+	print("usage: ", script_name, "<directory> <file containing arguments> <runs per argument>")
 	sys.exit()
 
-program = sys.argv[1]
-argfile = sys.argv[2]
-repeats = int(sys.argv[3])
+root_dir = sys.argv[1]
+argfile  = sys.argv[2]
+repeats  = int(sys.argv[3])
 
 
 with open(argfile) as f:
 	args = f.readlines()
 
-runtimes = list()
-# Run the program and time everything
-for arg in args:
-	runtime = 0.0
+submissions = os.listdir(root_dir)
 
-	print("running ", program, arg, "...")
+students = 0
+time_count = 0
+# for every student folder
+for sfolder_name in submissions:
+	sfolder = os.path.join(root_dir, sfolder_name)
+	print("sfolder:", sfolder)
 
-	cmd = list()
-	cmd.append(program)
-	cmd.extend(arg.split())
-	for run in range(repeats):
-		start_time = time.time()
-		subprocess.run(cmd)
-		end_time = time.time()
-		runtime = runtime + (end_time - start_time)
+	# skip files, we only care about folders
+	if not os.path.isdir(sfolder):
+		continue
+	students = students + 1
 
-	runtimes.append(runtime/repeats)
+	sfiles = os.listdir(sfolder)
+	for sfile_name in sfiles:
+		sfile = os.path.join(sfolder, sfile_name)
 
-# Write a timing log
-log = open(program + ".tlog", "w+")
+		fname, fext = os.path.splitext(sfile)
 
-for i, arg in enumerate(args):
-	# The output format is a tab seperated table of : <arguments> <Average runtime> <Speedup compared to first row>
-	log.write(arg.strip() + "\t" + str(runtimes[i]) + "\t" + str(runtimes[0]/runtimes[i]) + "\n")
+		# skip other types of files
+		if not fext.lower() == ".out":
+			continue
 
-log.close()
+		runtimes = list()
+		# Run the program and time everything
+		for arg in args:
+			runtime = 0.0
+		
+			print("running ", sfile, arg, "...")
+		
+			cmd = list()
+			cmd.append(sfile)
+			cmd.extend(arg.split())
+			for run in range(repeats):
+				start_time = time.time()
+				subprocess.run(cmd)
+				end_time = time.time()
+				runtime = runtime + (end_time - start_time)
+		
+			runtimes.append(runtime/repeats)
+		
+		# Write a timing log
+		log = open(fname + ".tlog", "w+")
+		
+		for i, arg in enumerate(args):
+			# The output format is a tab seperated table of : <arguments> <Average runtime> <Speedup compared to first row>
+			log.write(arg.strip() + "\t" + str(runtimes[i]) + "\t" + str(runtimes[0]/runtimes[i]) + "\n")
+		
+		log.close()
+	
+		time_count = time_count + 1
+
+print("wrote", time_count, "timing logs for", students, "students")

@@ -1,5 +1,5 @@
 """
-d2l_builder.py - compiles all the specified files in the directory created by d2l_formatter.py
+d2l_cat.py - concatenate specified files from each student into one big file
 Copyright (C) 2020 Sean O. Stalley
 
 This program is free software: you can redistribute it and/or modify
@@ -15,29 +15,27 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-
 import sys
 import os
-import subprocess
-
 
 script_name = sys.argv[0]
 
-if (len(sys.argv) != 5):
-	print("usage: ", script_name, "<directory> <filetype> <compiler string> <output string>")
+if (len(sys.argv) < 3):
+	print("usage: ", script_name, "<directory> <file extension(s)>")
 	sys.exit()
 	# example command for running this script:
 	# python3 d2l_builder.py HW2 .c "cc -lpd -fdafd " "-o"
 
 root_dir = sys.argv[1]
-ftype = sys.argv[2]
-ccstring = sys.argv[3]
-outstring = sys.argv[4]
+extensions = sys.argv[2:]
+
+for ext in extensions:
+	ext = ext.lower()
 
 submissions = os.listdir(root_dir)
 
 students = 0
-cc_count = 0
+f_count = 0
 # for every student folder
 for sfolder_name in submissions:
 
@@ -49,6 +47,11 @@ for sfolder_name in submissions:
 		continue
 	students = students + 1
 
+	logpath = os.path.join(sfolder, "log.log")
+
+	print("Writing \"", logpath, "\"...")
+	log = open(logpath, "w")
+
 	sfiles = os.listdir(sfolder)
 	for sfile_name in sfiles:
 		sfile = os.path.join(sfolder, sfile_name)
@@ -56,19 +59,19 @@ for sfolder_name in submissions:
 		fname, fext = os.path.splitext(sfile)
 
 		# skip other types of files
-		if not ftype.lower() == fext.lower():
+		if not fext.lower() in extensions:
 			continue
-		cc_count = cc_count + 1
 
-		cmd_str = ccstring + " \"" + sfile + "\" " + outstring + " \"" + fname + ".out\""
+		f_count = f_count + 1
 
-		print("Running \"", cmd_str, "\"...")
-		stream = subprocess.Popen(cmd_str, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-		cc_output = stream.communicate()
+		print("Reading \"", sfile, "\"...")
+		log.write("Contents of " + sfile + ":")
 
-		logpath = fname + ".clog"
-		cc_log = open(logpath, "wb")
-		cc_log.write(cc_output[0])
-		cc_log.close()
+		rfile = open(sfile, "r")
+		log.write(rfile.read())
+		rfile.close()
 
-print("compiled", cc_count, ftype, "files for", students, "students")
+	log.close()
+
+print("read", f_count, "files for", students, "students")
+

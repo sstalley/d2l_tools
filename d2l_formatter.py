@@ -89,6 +89,8 @@ for sfile in submissions:
 			for zip_info in zip.infolist():
 				if zip_info.filename[-1] == '/':
 					continue
+				if os.path.basename(zip_info.filename).startswith("."):
+					continue
 				zip_info.filename = os.path.basename(zip_info.filename)
 				zip.extract(zip_info, spath)
 		#and remove the zip file
@@ -99,9 +101,12 @@ for sfile in submissions:
 		tf = tarfile.open(newpath)
 		# ignore directory structure, extract every file to student directory
 		for tar_info in tf:
-			if tar_info.isfile():
-				tar_info.name = os.path.basename(tar_info.name)
-				tf.extract(tar_info, spath)
+			if not tar_info.isfile():
+				continue
+			if os.path.basename(tar_info.name).startswith("."):
+				continue
+			tar_info.name = os.path.basename(tar_info.name)
+			tf.extract(tar_info, spath)
 
 		#and remove the tar file
 		os.remove(newpath)
