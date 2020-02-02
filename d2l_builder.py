@@ -22,32 +22,38 @@ import os
 
 script_name = sys.argv[0]
 
-if (len(sys.argv) < 3):
+if (len(sys.argv) != 5):
 	print("usage: ", script_name, "<directory> <filetype> <compiler string> <output string>")
 	sys.exit()
 	# example command for running this script:
 	# python3 d2l_builder.py HW2 .c "cc -lpd -fdafd " "-o"
 
-if (len(sys.argv) > 3):
-	poststring = sys.argv[4]
-else:
-	poststring = ''
+
+root_dir = sys.argv[1]
+ftype = sys.argv[2]
+ccstring = sys.argv[3]
+outstring = sys.argv[4]
+
 
 submissions = os.listdir(root_dir)
 
 students = 0
 cc_count = 0
 # for every student folder
-for sfolder in submissions:
+for sfolder_name in submissions:
+
+	sfolder = os.path.join(root_dir, sfolder_name)
+	print("sfolder:", sfolder)
 
 	# skip files, we only care about folders
-	if not os.is_dir(sfolder):
+	if not os.path.isdir(sfolder):
 		continue
 	students = students + 1
 
-
 	sfiles = os.listdir(sfolder)
-	for sfile in sfiles:
+	for sfile_name in sfiles:
+		sfile = os.path.join(sfolder, sfile_name)
+
 		fname, fext = os.path.splitext(sfile)
 
 		# skip other types of files
@@ -55,15 +61,15 @@ for sfolder in submissions:
 			continue
 		cc_count = cc_count + 1
 
-		cmd_str = ccstring + " " + sfile + " " + outstring + " " + fname
+		cmd_str = ccstring + " \"" + sfile + "\" " + outstring + " \"" + fname + "\""
 
 		print("Running \"", cmd_str, "\"...")
 		stream = os.popen(cmd_str)
 		cc_output = stream.read()
 		
-		logpath = os.path.join(root_dir, sfolder, fname, ".clog")
+		logpath = fname + ".clog"
 		cc_log = open(logpath, "w")
-		text_file.write(cc_output)
-		text_file.close()
+		cc_log.write(cc_output)
+		cc_log.close()
 
 print("compiled", cc_count, ftype, "files for", students, "students")
