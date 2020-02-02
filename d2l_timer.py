@@ -45,7 +45,6 @@ for arg in args:
 	cmd = list()
 	cmd.append(program)
 	cmd.extend(arg.split())
-	print("cmd:", cmd)
 	for run in range(repeats):
 		start_time = time.time()
 		subprocess.run(cmd)
@@ -59,6 +58,6 @@ log = open(program + ".tlog", "w+")
 
 for i, arg in enumerate(args):
 	# The output format is a tab seperated table of : <arguments> <Average runtime> <Speedup compared to first row>
-	log.write(arg + "\t" + str(runtimes[i]) + "\t" + str(runtimes[0]/runtimes[i]) + "\n")
+	log.write(arg.strip() + "\t" + str(runtimes[i]) + "\t" + str(runtimes[0]/runtimes[i]) + "\n")
 
 log.close()
