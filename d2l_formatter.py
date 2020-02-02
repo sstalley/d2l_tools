@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import sys
 import os
 import zipfile
+import re
 
 script_name = sys.argv[0]
 
@@ -31,6 +32,7 @@ destination = sys.argv[2]
 
 print("Running ", script_name, " ...")
 
+# Make a folder to store all the submissions
 if not (os.path.exists(destination)):
 	# Make a folder to put all the unzipped stuff
 	try:
@@ -46,7 +48,35 @@ with zipfile.ZipFile(zfile, 'r') as zip_ref:
 	zip_ref.extractall(destination)
 
 
-#For every zip file:
+submissions = os.listdir(destination)
+
+# Make a folder for every student
+for sfile in submissions:
+
+	# every submitted file is in the format "<some ID number> <student name> <filename>.<extention>"
+	# we create a folder for each student in the format "<some ID number> <student name>" and put all their files into it
+	smatch =  re.match("^(.+?)\s+(?=\S+$)", sfile)
+	print("smatch:", smatch)
+	if (smatch is None):
+		continue
+	else:
+		sname = smatch[0]
+
+	spath = os.path.join(destination, sname)
+
+
+	if not (os.path.exists(spath)):
+		print("creating ", spath, "...")
+		try:
+			os.mkdir(spath)
+		except OSError:
+			print("Error: Cannot create ", spath)
+			sys.exit()
+	
+# For every submission:
+	# Create a folder
+
+# For every zip file:
 	#Unzip it
 
 	#Place all files in root directory
