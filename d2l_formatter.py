@@ -66,19 +66,21 @@ for sfile in submissions:
 
 	if not (os.path.exists(spath)):
 		students = students + 1
-		print("creating ", spath, "directory")
+		print("creating ", spath, "...")
 		try:
 			os.mkdir(spath)
 		except OSError:
-			print("Error: Cannot create ", spath)
+			print("Error: Cannot create", spath)
 			sys.exit()
 
 	# move file into folder
+	newfile = str.lstrip(str.replace(sfile, sname, ""))
 	oldpath = os.path.join(destination, sfile)
-	newpath = os.path.join(spath, sfile)
+	newpath = os.path.join(spath, newfile)
+	print("Moving", oldpath, "to", newpath)
 	os.rename(oldpath, newpath)
 	
-print("created folders for ", students, "students")
+print("created folders for", students, "students")
 
 # For every submission:
 	# Create a folder
