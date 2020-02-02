@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import sys
 import os
 import zipfile
+import tarfile
 import re
 
 script_name = sys.argv[0]
@@ -93,15 +94,16 @@ for sfile in submissions:
 		#and remove the zip file
 		os.remove(newpath)
 
+	# Untar if it's a Tarball
+	elif tarfile.is_tarfile(newpath):
+		tf = tarfile.open(newpath)
+		# ignore directory structure, extract every file to student directory
+		for tar_info in tf:
+			if tar_info.isfile():
+				tar_info.name = os.path.basename(tar_info.name)
+				tf.extract(tar_info, spath)
+
+		#and remove the tar file
+		os.remove(newpath)
+	
 print("created folders for", students, "students")
-
-
-
-# For every zip file:
-	#Unzip it
-
-	#Place all files in root directory
-
-# For every student that submitted files individually:
-	#Create a folder for them
-	#Place individual files into folder
