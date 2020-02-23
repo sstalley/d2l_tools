@@ -60,6 +60,8 @@ for sfolder_name in submissions:
 			continue
 
 		runtimes = list()
+		errlog = list()
+		outlog = list()
 		# Run the program and time everything
 		for arg in args:
 			runtime = 0.0
@@ -71,14 +73,18 @@ for sfolder_name in submissions:
 			cmd.extend(arg.split())
 			for run in range(repeats):
 				start_time = time.time()
-				subprocess.run(cmd)
+				result = subprocess.run(cmd, capture_output=True)
 				end_time = time.time()
 				runtime = runtime + (end_time - start_time)
+				
+				outlog.append(result.stdout)
+				errlog.append(result.stderr)
 		
 			runtimes.append(runtime/repeats)
 		
 		# Write a timing log
 		log = open(fname + ".tlog", "w+")
+
 		
 		for i, arg in enumerate(args):
 			# The output format is a tab seperated table of : <arguments> <Average runtime> <Speedup compared to first row>
@@ -86,6 +92,20 @@ for sfolder_name in submissions:
 		
 		log.close()
 	
+		# Write the output and error logs
+		log = open(fname + ".errlog", "w+")
+		for err in errlog:
+			log.write(err)
+		log.close()
+		log = open(fname + ".outlog", "w+")
+		for out in outlog:
+			log.write(out)
+		log.close()
+
+
+
+
+
 		time_count = time_count + 1
 
 print("wrote", time_count, "timing logs for", students, "students")

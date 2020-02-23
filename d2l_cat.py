@@ -65,7 +65,7 @@ for sfolder_name in submissions:
 		f_count = f_count + 1
 
 		print("Reading \"", sfile, "\"...")
-		log.write("Contents of " + sfile + ":")
+		log.write("Contents of " + sfile + ":\n")
 
 		rfile = open(sfile, "r", errors='ignore')
 		log.write(rfile.read())
