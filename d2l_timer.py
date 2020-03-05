@@ -20,6 +20,7 @@ import sys
 import os
 import subprocess
 import time
+import threading
 
 script_name = sys.argv[0]
 
@@ -73,12 +74,26 @@ for sfolder_name in submissions:
 			cmd.extend(arg.split())
 			for run in range(repeats):
 				start_time = time.time()
-				result = subprocess.run(cmd, capture_output=True)
+
+				proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				timeout = threading.Timer(120, proc.kill)
+				try:
+					#result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True, timeout=120)
+					timeout.start()
+					stdout, stderr = proc.communicate()
+				except:
+					print("something bad happened...")
+				else:
+					outlog.append(stdout)
+					errlog.append(stderr)
+					#outlog.append(result.stdout)
+					#errlog.append(result.stderr)
+				finally:
+					timeout.cancel()
+
 				end_time = time.time()
 				runtime = runtime + (end_time - start_time)
 				
-				outlog.append(result.stdout)
-				errlog.append(result.stderr)
 		
 			runtimes.append(runtime/repeats)
 		
@@ -93,18 +108,14 @@ for sfolder_name in submissions:
 		log.close()
 	
 		# Write the output and error logs
-		log = open(fname + ".errlog", "w+")
+		log = open(fname + ".errlog", "wb+")
 		for err in errlog:
 			log.write(err)
 		log.close()
-		log = open(fname + ".outlog", "w+")
+		log = open(fname + ".outlog", "wb+")
 		for out in outlog:
 			log.write(out)
 		log.close()
-
-
-
-
 
 		time_count = time_count + 1
 
