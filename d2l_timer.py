@@ -24,14 +24,18 @@ import threading
 
 script_name = sys.argv[0]
 
-if (len(sys.argv) != 4):
-	print("usage: ", script_name, "<directory> <file containing arguments> <runs per argument>")
+if (len(sys.argv) > 5):
+	print("usage: ", script_name, "<directory> <file containing arguments> <runs per argument> <optional command prefix>")
 	sys.exit()
 
 root_dir = sys.argv[1]
 argfile  = sys.argv[2]
 repeats  = int(sys.argv[3])
 
+if (len(sys.argv) > 4):
+	prefix = int(sys.argv[4])
+else:
+	prefix = None
 
 with open(argfile) as f:
 	args = f.readlines()
@@ -69,9 +73,17 @@ for sfolder_name in submissions:
 		
 			print("running ", sfile, arg, "...")
 		
+			# Note this is kind of hacky - if there is a prefix we put the arguments from the file after the prefix instead of after the command itself
+			# Probably would be considered a bug for most use cases, but it solves my one niche usecase cleanly :)
 			cmd = list()
+			if prefix is not None:
+				cmd.append(prefix)
+				cmd.extend(arg.split())
+
 			cmd.append(sfile)
-			cmd.extend(arg.split())
+			if prefix is None:
+				cmd.extend(arg.split())
+
 			for run in range(repeats):
 				start_time = time.time()
 
